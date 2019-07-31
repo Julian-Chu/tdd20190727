@@ -13,28 +13,17 @@ namespace BudgetApp
     private DateTime StartDate { get; set; }
     private DateTime EndDate { get; set; }
 
-    public int GetValidDaysInMonth(Budget budget)
+    public int GetOverlappingDays(Period budgetPeriod)
     {
-      var datetime = DateTime.ParseExact(budget.YearMonth, "yyyyMM", null);
-
-      if (StartDate > budget.LastDay() || EndDate < budget.FirstDay())
+      if (EndDate < budgetPeriod.StartDate || StartDate > budgetPeriod.EndDate)
       {
         return 0;
       }
-      if (StartDate.ToString("yyyyMM") == EndDate.ToString("yyyyMM"))
-      {
-        return this.EndDate.Day - this.StartDate.Day + 1;
-      }
-      else if (datetime.ToString("yyyyMM") == EndDate.ToString("yyyyMM"))
-      {
-        return EndDate.Day;
-      }
-      else if (datetime.ToString("yyyyMM") == StartDate.ToString("yyyyMM"))
-      {
-        return DateTime.DaysInMonth(StartDate.Year, StartDate.Month) - StartDate.Day + 1;
-      }
 
-      return DateTime.DaysInMonth(datetime.Year, datetime.Month);
+      var startDate = StartDate > budgetPeriod.StartDate ? StartDate : budgetPeriod.StartDate;
+      var endDate = EndDate < budgetPeriod.EndDate ? EndDate : budgetPeriod.EndDate;
+
+      return endDate.Day - startDate.Day + 1;
     }
   }
 }

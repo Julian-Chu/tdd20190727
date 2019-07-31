@@ -20,7 +20,7 @@ namespace BudgetApp
       }
 
       var period = new Period(startDate, endDate);
-      return this._repo.GetAll().Sum(x => x.GetDailyBudgetAmount() * period.GetValidDaysInMonth(x));
+      return this._repo.GetAll().Sum(x => x.GetDailyBudgetAmount() * period.GetOverlappingDays(x.Period));
     }
   }
 }

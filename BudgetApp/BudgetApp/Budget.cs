@@ -27,23 +27,15 @@ namespace BudgetApp
       }
     }
 
-    public DateTime LastDay()
+    public Period Period
     {
-      var date = BudgetDateTime;
-      return new DateTime(
-        date.Year,
-        date.Month,
-        1
-        ).AddMonths(1).AddDays(-1);
-    }
+      get
+      {
+        var firstDay = DateTime.ParseExact(YearMonth + "01", "yyyyMMdd", null);
+        var lastDay = DateTime.ParseExact(YearMonth + "01", "yyyyMMdd", null).AddMonths(1).AddDays(-1);
 
-    public DateTime FirstDay()
-    {
-      var date = BudgetDateTime;
-      return new DateTime(
-        date.Year,
-        date.Month,
-        1);
+        return new Period(firstDay, lastDay);
+      }
     }
   }
 }
