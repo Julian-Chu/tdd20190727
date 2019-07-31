@@ -22,39 +22,21 @@ namespace BudgetApp
       }
 
       var period = new Period(startDate, endDate);
-      if (IsSameMonth(period))
+      var totalAmount = 0;
+      var currentMonth = period.GetFirstCalendarDayOfStartMonth();
+      var endMonth = period.GetLastCalendarDayOfEndMonth();
+      while (currentMonth <= endMonth)
       {
-        var budget = budgets.FirstOrDefault(x => x.YearMonth == startDate.ToString("yyyyMM"));
-        if (budget == null)
+        var budget = budgets.FirstOrDefault(x => x.YearMonth == currentMonth.ToString("yyyyMM"));
+        if (budget != null)
         {
-          return 0;
+          totalAmount += budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget);
         }
 
-        return budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget);
+        currentMonth = currentMonth.AddMonths(1);
       }
-      else
-      {
-        var totalAmount = 0;
-        var currentMonth = new DateTime(period.StartDate.Year, period.StartDate.Month, 1);
-        var endBefore = new DateTime(period.EndDate.Year, period.EndDate.Month, 1).AddMonths(1);
-        while (currentMonth < endBefore)
-        {
-          var budget = budgets.FirstOrDefault(x => x.YearMonth == currentMonth.ToString("yyyyMM"));
-          if (budget != null)
-          {
-            totalAmount += budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget);
-          }
 
-          currentMonth = currentMonth.AddMonths(1);
-        }
-
-        return totalAmount;
-      }
-    }
-
-    private bool IsSameMonth(Period period)
-    {
-      return period.StartDate.Year == period.EndDate.Year && period.StartDate.Month == period.EndDate.Month;
+      return totalAmount;
     }
   }
 }

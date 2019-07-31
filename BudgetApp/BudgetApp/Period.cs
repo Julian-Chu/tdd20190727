@@ -32,5 +32,15 @@ namespace BudgetApp
 
       return DateTime.DaysInMonth(datetime.Year, datetime.Month);
     }
+
+    public DateTime GetLastCalendarDayOfEndMonth()
+    {
+      return new DateTime(this.EndDate.Year, this.EndDate.Month, DateTime.DaysInMonth(this.EndDate.Year, this.EndDate.Month));
+    }
+
+    public DateTime GetFirstCalendarDayOfStartMonth()
+    {
+      return new DateTime(this.StartDate.Year, this.StartDate.Month, 1);
+    }
   }
 }
