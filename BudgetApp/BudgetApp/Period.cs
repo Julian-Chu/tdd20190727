@@ -25,6 +25,10 @@ namespace BudgetApp
       {
         return EndDate.Day;
       }
+      else if (datetime.ToString("yyyyMM") == StartDate.ToString("yyyyMM"))
+      {
+        return DateTime.DaysInMonth(StartDate.Year, StartDate.Month) - StartDate.Day + 1;
+      }
 
       return DateTime.DaysInMonth(datetime.Year, datetime.Month);
     }

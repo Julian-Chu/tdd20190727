@@ -12,7 +12,6 @@ namespace BudgetApp
       return Amount / GetDaysInMonth();
     }
 
-    //private static int GetDaysInMonth(DateTime startDate)
     private int GetDaysInMonth()
     {
       var date = DateTime.ParseExact(YearMonth, "yyyyMM", null);

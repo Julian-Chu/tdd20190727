@@ -39,23 +39,10 @@ namespace BudgetApp
         var endBefore = new DateTime(period.EndDate.Year, period.EndDate.Month, 1).AddMonths(1);
         while (currentMonth < endBefore)
         {
-          var searchMonth = currentMonth.ToString("yyyyMM");
-          if (budgets.Any(x => x.YearMonth == searchMonth))
+          var budget = budgets.FirstOrDefault(x => x.YearMonth == currentMonth.ToString("yyyyMM"));
+          if (budget != null)
           {
-            var budget = budgets.FirstOrDefault(x => x.YearMonth == searchMonth);
-            if (budget == null)
-            {
-              continue;
-            }
-
-            if (budget.YearMonth == startDate.ToString("yyyyMM"))
-            {
-              totalAmount += budget.GetDailyBudgetAmount() * (DateTime.DaysInMonth(startDate.Year, startDate.Month) - startDate.Day + 1);
-            }
-            else
-            {
-              totalAmount += budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget);
-            }
+            totalAmount += budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget);
           }
 
           currentMonth = currentMonth.AddMonths(1);
