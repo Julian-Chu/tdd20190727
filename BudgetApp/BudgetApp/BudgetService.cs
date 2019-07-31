@@ -50,15 +50,9 @@ namespace BudgetApp
       }
       else
       {
-        var lastMonthFullBudget = budgets.FirstOrDefault(x => x.YearMonth == endDate.ToString("yyyyMM"));
-        int lastMonth = 0;
-        if (lastMonthFullBudget != null)
-        {
-          lastMonth = lastMonthFullBudget.GetDailyBudgetAmount() * (endDate.Day);
-        }
-        var totalAmount = lastMonth;
+        var totalAmount = 0;
         var currentMonth = new DateTime(startDate.Year, startDate.Month, 1);
-        var endBefore = new DateTime(endDate.Year, endDate.Month, 1);
+        var endBefore = new DateTime(endDate.Year, endDate.Month, 1).AddMonths(1);
         while (currentMonth < endBefore)
         {
           var searchMonth = currentMonth.ToString("yyyyMM");
@@ -69,6 +63,10 @@ namespace BudgetApp
             if (budget.YearMonth == startDate.ToString("yyyyMM"))
             {
               totalAmount += budget.GetDailyBudgetAmount() * (DateTime.DaysInMonth(startDate.Year, startDate.Month) - startDate.Day + 1);
+            }
+            else if (budget.YearMonth == endDate.ToString("yyyyMM"))
+            {
+              totalAmount += budget.GetDailyBudgetAmount() * (endDate.Day);
             }
             else
             {
