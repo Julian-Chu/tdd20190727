@@ -16,34 +16,22 @@ namespace BudgetApp
     {
       var budgets = this._repo.GetAll();
 
-      string searchMonth = "";
+      //string searchMonth = "";
       if (startDate > endDate)
       {
         return 0;
       }
 
-      if (startDate.Year == endDate.Year && startDate.Month == endDate.Month)
+      if (IsSameMonth(startDate, endDate))
       {
-        searchMonth = startDate.ToString("yyyyMM");
+        var searchMonth = startDate.ToString("yyyyMM");
         if (budgets.All(x => x.YearMonth != searchMonth))
         {
           return 0;
         }
 
-        if (endDate.Day == DateTime.DaysInMonth(startDate.Year, startDate.Month) && startDate.Day == 1)
-        {
-          return budgets.FirstOrDefault(x => x.YearMonth == searchMonth).Amount;
-        }
-        else if (startDate.Day == endDate.Day)
-        {
-          return budgets.FirstOrDefault(x => x.YearMonth == searchMonth).Amount /
-              DateTime.DaysInMonth(startDate.Year, startDate.Month);
-        }
-        else
-        {
-          return budgets.FirstOrDefault(x => x.YearMonth == searchMonth).Amount /
-              DateTime.DaysInMonth(startDate.Year, startDate.Month) * (endDate.Day - startDate.Day + 1);
-        }
+        var budget = budgets.FirstOrDefault(x => x.YearMonth == searchMonth);
+        return budget.GetDailyBudgetAmount() * (endDate.Day - startDate.Day + 1);
       }
       else
       {
@@ -68,7 +56,7 @@ namespace BudgetApp
         var allEndMonth = new DateTime(endDate.Year, endDate.Month, 1);
         while (allEndMonth > allStartMonth)
         {
-          searchMonth = allStartMonth.ToString("yyyyMM");
+          var searchMonth = allStartMonth.ToString("yyyyMM");
           if (budgets.Any(x => x.YearMonth == searchMonth))
             totalAmount += budgets.FirstOrDefault(x => x.YearMonth == searchMonth).Amount;
 
@@ -77,6 +65,11 @@ namespace BudgetApp
 
         return totalAmount;
       }
+    }
+
+    private bool IsSameMonth(DateTime startDate, DateTime endDate)
+    {
+      return startDate.Year == endDate.Year && startDate.Month == endDate.Month;
     }
   }
 }
