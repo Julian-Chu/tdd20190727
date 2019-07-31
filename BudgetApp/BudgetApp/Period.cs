@@ -10,13 +10,17 @@ namespace BudgetApp
       EndDate = endDate;
     }
 
-    public DateTime StartDate { get; private set; }
-    public DateTime EndDate { get; private set; }
+    private DateTime StartDate { get; set; }
+    private DateTime EndDate { get; set; }
 
     public int GetValidDaysInMonth(Budget budget)
     {
       var datetime = DateTime.ParseExact(budget.YearMonth, "yyyyMM", null);
 
+      if (StartDate > budget.LastDay() || EndDate < budget.FirstDay())
+      {
+        return 0;
+      }
       if (StartDate.ToString("yyyyMM") == EndDate.ToString("yyyyMM"))
       {
         return this.EndDate.Day - this.StartDate.Day + 1;
@@ -31,16 +35,6 @@ namespace BudgetApp
       }
 
       return DateTime.DaysInMonth(datetime.Year, datetime.Month);
-    }
-
-    public DateTime GetLastCalendarDayOfEndMonth()
-    {
-      return new DateTime(this.EndDate.Year, this.EndDate.Month, DateTime.DaysInMonth(this.EndDate.Year, this.EndDate.Month));
-    }
-
-    public DateTime GetFirstCalendarDayOfStartMonth()
-    {
-      return new DateTime(this.StartDate.Year, this.StartDate.Month, 1);
     }
   }
 }
