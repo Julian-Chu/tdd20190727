@@ -3,30 +3,6 @@ using System.Linq;
 
 namespace BudgetApp
 {
-  public class Period
-  {
-    public Period(DateTime startDate, DateTime endDate)
-    {
-      StartDate = startDate;
-      EndDate = endDate;
-    }
-
-    public DateTime StartDate { get; private set; }
-    public DateTime EndDate { get; private set; }
-
-    public int GetValidDaysInMonth(string budgetYearMonth)
-    {
-      var datetime = DateTime.ParseExact(budgetYearMonth, "yyyyMM", null);
-
-      if (StartDate.ToString("yyyyMM") == EndDate.ToString("yyyyMM"))
-      {
-        return this.EndDate.Day - this.StartDate.Day + 1;
-      }
-
-      return DateTime.DaysInMonth(datetime.Year, datetime.Month);
-    }
-  }
-
   public class BudgetService
   {
     private readonly IBudgetRepository _repo;
@@ -54,7 +30,7 @@ namespace BudgetApp
           return 0;
         }
 
-        return budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget.YearMonth);
+        return budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget);
       }
       else
       {
@@ -76,14 +52,9 @@ namespace BudgetApp
             {
               totalAmount += budget.GetDailyBudgetAmount() * (DateTime.DaysInMonth(startDate.Year, startDate.Month) - startDate.Day + 1);
             }
-            else if (budget.YearMonth == endDate.ToString("yyyyMM"))
-            {
-              totalAmount += budget.GetDailyBudgetAmount() * (endDate.Day);
-            }
             else
             {
-              //totalAmount += budget.Amount;
-              totalAmount += budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget.YearMonth);
+              totalAmount += budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget);
             }
           }
 
