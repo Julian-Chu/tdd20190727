@@ -14,9 +14,16 @@ namespace BudgetApp
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
 
-    public int GetValidDaysInMonth()
+    public int GetValidDaysInMonth(string budgetYearMonth)
     {
-      return this.EndDate.Day - this.StartDate.Day + 1;
+      var datetime = DateTime.ParseExact(budgetYearMonth, "yyyyMM", null);
+
+      if (StartDate.ToString("yyyyMM") == EndDate.ToString("yyyyMM"))
+      {
+        return this.EndDate.Day - this.StartDate.Day + 1;
+      }
+
+      return DateTime.DaysInMonth(datetime.Year, datetime.Month);
     }
   }
 
@@ -46,19 +53,24 @@ namespace BudgetApp
         {
           return 0;
         }
-        return budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth();
+
+        return budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget.YearMonth);
       }
       else
       {
         var totalAmount = 0;
-        var currentMonth = new DateTime(startDate.Year, startDate.Month, 1);
-        var endBefore = new DateTime(endDate.Year, endDate.Month, 1).AddMonths(1);
+        var currentMonth = new DateTime(period.StartDate.Year, period.StartDate.Month, 1);
+        var endBefore = new DateTime(period.EndDate.Year, period.EndDate.Month, 1).AddMonths(1);
         while (currentMonth < endBefore)
         {
           var searchMonth = currentMonth.ToString("yyyyMM");
           if (budgets.Any(x => x.YearMonth == searchMonth))
           {
             var budget = budgets.FirstOrDefault(x => x.YearMonth == searchMonth);
+            if (budget == null)
+            {
+              continue;
+            }
 
             if (budget.YearMonth == startDate.ToString("yyyyMM"))
             {
@@ -70,7 +82,8 @@ namespace BudgetApp
             }
             else
             {
-              totalAmount += budget.Amount;
+              //totalAmount += budget.Amount;
+              totalAmount += budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth(budget.YearMonth);
             }
           }
 
