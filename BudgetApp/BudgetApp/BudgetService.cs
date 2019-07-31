@@ -3,6 +3,23 @@ using System.Linq;
 
 namespace BudgetApp
 {
+  public class Period
+  {
+    public Period(DateTime startDate, DateTime endDate)
+    {
+      StartDate = startDate;
+      EndDate = endDate;
+    }
+
+    public DateTime StartDate { get; private set; }
+    public DateTime EndDate { get; private set; }
+
+    public int GetValidDaysInMonth()
+    {
+      return this.EndDate.Day - this.StartDate.Day + 1;
+    }
+  }
+
   public class BudgetService
   {
     private readonly IBudgetRepository _repo;
@@ -16,22 +33,20 @@ namespace BudgetApp
     {
       var budgets = this._repo.GetAll();
 
-      //string searchMonth = "";
       if (startDate > endDate)
       {
         return 0;
       }
 
-      if (IsSameMonth(startDate, endDate))
+      var period = new Period(startDate, endDate);
+      if (IsSameMonth(period))
       {
-        var searchMonth = startDate.ToString("yyyyMM");
-        if (budgets.All(x => x.YearMonth != searchMonth))
+        var budget = budgets.FirstOrDefault(x => x.YearMonth == startDate.ToString("yyyyMM"));
+        if (budget == null)
         {
           return 0;
         }
-
-        var budget = budgets.FirstOrDefault(x => x.YearMonth == searchMonth);
-        return budget.GetDailyBudgetAmount() * (endDate.Day - startDate.Day + 1);
+        return budget.GetDailyBudgetAmount() * period.GetValidDaysInMonth();
       }
       else
       {
@@ -52,24 +67,28 @@ namespace BudgetApp
                       DateTime.DaysInMonth(endDate.Year, endDate.Month) * (endDate.Day);
         }
         var totalAmount = firstMonth + lastMonth;
-        var allStartMonth = new DateTime(startDate.Year, startDate.Month, 1).AddMonths(1);
-        var allEndMonth = new DateTime(endDate.Year, endDate.Month, 1);
-        while (allEndMonth > allStartMonth)
+        var currentMonth = new DateTime(startDate.Year, startDate.Month, 1).AddMonths(1);
+        var endBefore = new DateTime(endDate.Year, endDate.Month, 1);
+        while (currentMonth < endBefore)
         {
-          var searchMonth = allStartMonth.ToString("yyyyMM");
+          var searchMonth = currentMonth.ToString("yyyyMM");
           if (budgets.Any(x => x.YearMonth == searchMonth))
-            totalAmount += budgets.FirstOrDefault(x => x.YearMonth == searchMonth).Amount;
+          {
+            var budget = budgets.FirstOrDefault(x => x.YearMonth == searchMonth);
 
-          allStartMonth = allStartMonth.AddMonths(1);
+            totalAmount += budget.Amount;
+          }
+
+          currentMonth = currentMonth.AddMonths(1);
         }
 
         return totalAmount;
       }
     }
 
-    private bool IsSameMonth(DateTime startDate, DateTime endDate)
+    private bool IsSameMonth(Period period)
     {
-      return startDate.Year == endDate.Year && startDate.Month == endDate.Month;
+      return period.StartDate.Year == period.EndDate.Year && period.StartDate.Month == period.EndDate.Month;
     }
   }
 }
